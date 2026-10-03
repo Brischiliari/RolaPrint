@@ -1,0 +1,14 @@
+# Captures and local diagnostics may contain personal page content.
+diagnostico/
+*.log
+.build/
+interface-*.png
+
+# Previous prototypes and temporary development helpers.
+RolaPrint.ps1
+Preview-Interface.ps1
+CaptureEngine-baseline.cs
+
+# Local executable is distributed separately from source.
+*.exe
+!RolaPrint.exe
