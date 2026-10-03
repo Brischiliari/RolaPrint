@@ -133,11 +133,12 @@ sealed class MainWindow : Window
         {
             bridge?.Dispose(); bridge = new Bridge();
             status.Text = "Autorize o compartilhamento da tela e o controle do mouse no seletor do sistema.";
+            WindowState=WindowState.Minimized;
             source = await bridge.Frame("open"); region = default;
             ShowFrame(source); status.Text = "Arraste na prévia para marcar somente a área que rola. Evite barras e painéis.";
         }
         catch (Exception ex) { status.Text = "Não foi possível abrir a captura: " + ex.Message; }
-        finally { select.IsEnabled = true; }
+        finally { WindowState=WindowState.Normal; Activate(); select.IsEnabled = true; }
     }
     static RgbFrame Crop(RgbFrame frame, PixelRect r)
     {
