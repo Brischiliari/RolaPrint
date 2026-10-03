@@ -203,6 +203,7 @@ sealed class MainWindow : Window
         {
             busy=false; stopPanel?.Close(); stopPanel=null; WindowState=WindowState.Normal; Activate();
             select.IsEnabled=true; start.IsEnabled=true; save.IsEnabled=parts.Count>0;
+            source=null;
             if(parts.Count>0) ShowFrame(Assemble());
             capture.Dispose(); capture=null;
         }
@@ -215,9 +216,13 @@ sealed class MainWindow : Window
     }
     static WriteableBitmap Bitmap(RgbFrame frame)
     {
-        var bitmap=new WriteableBitmap(new PixelSize(frame.Width,frame.Height),new Vector(96,96),PixelFormat.Rgb24,AlphaFormat.Opaque);
+        var bitmap=new WriteableBitmap(new PixelSize(frame.Width,frame.Height),new Vector(96,96),PixelFormat.Bgra8888,AlphaFormat.Opaque);
+        byte[] row=new byte[frame.Width*4];
         using(var locked=bitmap.Lock()) for(int y=0;y<frame.Height;y++)
-            Marshal.Copy(frame.Data,y*frame.Width*3,IntPtr.Add(locked.Address,y*locked.RowBytes),frame.Width*3);
+        {
+            for(int x=0;x<frame.Width;x++) { int rgb=(y*frame.Width+x)*3,i=x*4; row[i]=frame.Data[rgb+2];row[i+1]=frame.Data[rgb+1];row[i+2]=frame.Data[rgb];row[i+3]=255; }
+            Marshal.Copy(row,0,IntPtr.Add(locked.Address,y*locked.RowBytes),row.Length);
+        }
         return bitmap;
     }
     void ShowFrame(RgbFrame frame) { var old=displayed; displayed=Bitmap(frame); preview.Source=displayed; old?.Dispose(); }

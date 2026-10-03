@@ -15,6 +15,8 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Check Python syntax
         run: python3 -m py_compile linux/portal.py
+      - name: Test portable alignment
+        run: dotnet run --project linux/RolaPrint.Tests -c Release
       - name: Build self contained app
         run: dotnet publish linux/RolaPrint.Linux -c Release -r linux-x64 --self-contained true -o package/opt/rolaprint
       - name: Package
