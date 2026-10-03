@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net8.0</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.9" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.9" />
+    <ProjectReference Include="../RolaPrint.Core/RolaPrint.Core.csproj" />
+    <None Include="../portal.py" Link="portal.py" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

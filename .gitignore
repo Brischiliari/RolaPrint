@@ -12,3 +12,6 @@ CaptureEngine-baseline.cs
 # Local executable is distributed separately from source.
 *.exe
 !RolaPrint.exe
+**/bin/
+**/obj/
+**/__pycache__/

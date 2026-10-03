@@ -1,0 +1,52 @@
+name: Linux package
+on:
+  push:
+    paths: ['linux/**', '.github/workflows/linux.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Check Python syntax
+        run: python3 -m py_compile linux/portal.py
+      - name: Build self contained app
+        run: dotnet publish linux/RolaPrint.Linux -c Release -r linux-x64 --self-contained true -o package/opt/rolaprint
+      - name: Package
+        run: |
+          mkdir -p package/DEBIAN package/usr/share/applications package/usr/share/icons/hicolor/256x256/apps
+          cp RolaPrint-icon.png package/usr/share/icons/hicolor/256x256/apps/rolaprint.png
+          cat > package/DEBIAN/control <<'EOF'
+          Package: rolaprint
+          Version: 0.1.0
+          Architecture: amd64
+          Maintainer: RolaPrint contributors
+          Depends: python3, python3-gi, gir1.2-gstreamer-1.0, gir1.2-gst-plugins-base-1.0, gstreamer1.0-pipewire, gstreamer1.0-plugins-base, xdg-desktop-portal, xwayland, libfontconfig1, libice6, libsm6, libx11-6, libicu74
+          Description: Scrolling screenshot capture for Linux Wayland (preview)
+          EOF
+          cat > package/usr/share/applications/rolaprint.desktop <<'EOF'
+          [Desktop Entry]
+          Type=Application
+          Name=RolaPrint
+          Comment=Capture documentos com rolagem
+          Exec=/opt/rolaprint/RolaPrint.Linux
+          Icon=rolaprint
+          Terminal=false
+          Categories=Utility;Graphics;
+          EOF
+          chmod 755 package/opt/rolaprint/RolaPrint.Linux
+          dpkg-deb --root-owner-group --build package RolaPrint-linux-amd64.deb
+          dpkg-deb --info RolaPrint-linux-amd64.deb
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RolaPrint-linux-amd64
+          path: RolaPrint-linux-amd64.deb
+      - name: Publish preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "linux-preview-${{ github.run_number }}" RolaPrint-linux-amd64.deb --prerelease --title "Linux preview ${{ github.run_number }}" --notes "Pacote experimental para Pop!_OS 24.04/COSMIC amd64. Instale com sudo apt install ./RolaPrint-linux-amd64.deb. Requer portal RemoteDesktop e PipeWire. Compilado no Ubuntu 24.04; captura real no COSMIC ainda precisa de validação."
