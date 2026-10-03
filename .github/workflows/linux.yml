@@ -15,6 +15,11 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Check Python syntax
         run: python3 -m py_compile linux/portal.py
+      - name: Verify system bridge imports
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y python3-gi gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 gstreamer1.0-pipewire
+          /usr/bin/python3 -c 'import runpy; runpy.run_path("linux/portal.py", run_name="import_test")'
       - name: Test portable alignment
         run: dotnet run --project linux/RolaPrint.Tests -c Release
       - name: Build self contained app

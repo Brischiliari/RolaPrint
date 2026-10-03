@@ -37,3 +37,7 @@ Vídeos e animações são identificados pela mudança entre duas capturas e ign
 O alinhamento precisa de conteúdo em comum entre imagens. Animações, grandes elementos fixos, áreas uniformes, rolagem horizontal e monitores com escalas diferentes podem impedir a coleta. Os testes automatizados usam imagens sintéticas; a migração ainda precisa de validação manual no Word e nos sites usados pelo usuário. A prévia ajusta a imagem à janela, sem zoom interativo. PDF e texto pesquisável não estão implementados.
 
 Tudo é processado localmente. O cursor é restaurado ao finalizar; a posição de rolagem do documento muda. Diagnósticos ficam em %LOCALAPPDATA%\RolaPrint\RolaPrint.log.
+
+## Linux
+
+A prévia para Pop!_OS 24.04/COSMIC (amd64) está nas Releases: https://github.com/Brischiliari/RolaPrint/releases . Consulte linux/README.md para instalação e limitações. A captura real no COSMIC ainda precisa de validação.

@@ -154,7 +154,11 @@ sealed class MainWindow : Window
         Alignment.CancellationRequested = () => token.IsCancellationRequested;
         parts.Clear();
         var stop = new Button { Content = "Parar e ver resultado", Padding = new Thickness(18) };
-        stopPanel = new Window { Title = "RolaPrint • captura", Width = 270, Height = 110, Topmost = true, Content = stop };
+        var progress=new TextBlock {Text="Preparando captura…",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(8)};
+        var panel=new StackPanel();panel.Children.Add(progress);panel.Children.Add(stop);
+        EventHandler<AvaloniaPropertyChangedEventArgs> update=(_,e)=> {if(e.Property==TextBlock.TextProperty)progress.Text=status.Text;};
+        status.PropertyChanged+=update;
+        stopPanel = new Window { Title = "RolaPrint • captura", Width = 320, Height = 165, Topmost = true, Content = panel };
         stop.Click += (_, _) => capture.Cancel();
         stopPanel.Closing += (_, _) => capture.Cancel();
         stopPanel.Show(); WindowState = WindowState.Minimized;
@@ -182,7 +186,7 @@ sealed class MainWindow : Window
                 },token);
                 if (shift < 0)
                 {
-                    // Restore the last known viewport. Never append a guessed displacement.
+                    // Attempt to undo the scroll, then pause. Recovery is not assumed successful.
                     await bridge.Send(new {command="scroll",x=region.X+region.Width/2,y=region.Y+region.Height/2,steps=-2});
                     status.Text="Alinhamento incerto. Coleta pausada; pare para salvar o resultado.";
                     await Task.Delay(Timeout.Infinite,token);
@@ -201,6 +205,7 @@ sealed class MainWindow : Window
         catch(Exception ex) { status.Text="Captura interrompida: "+ex.Message+" O conteúdo coletado pode ser salvo."; }
         finally
         {
+            status.PropertyChanged-=update;
             busy=false; stopPanel?.Close(); stopPanel=null; WindowState=WindowState.Normal; Activate();
             select.IsEnabled=true; start.IsEnabled=true; save.IsEnabled=parts.Count>0;
             source=null;
